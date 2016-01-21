@@ -30,10 +30,10 @@
 /**
  * SRAM opcodes
  */
-#define RDSR  5
-#define WRSR  1
-#define READ  3
-#define WRITE 2
+#define RDSR  5  // Serial read mode
+#define WRSR  1  // Serial write mode
+#define READ  3  // Read single byte 
+#define WRITE 2  // Write single byte
 
 /**
  * SRAM Hold line override
@@ -143,7 +143,7 @@ class SRAM
      *
      * @return Byte read
      */
-    unsigned char readByte(unsigned int address);
+    unsigned char readByte(unsigned long address);
 
     /**
      * writeByte
@@ -153,7 +153,17 @@ class SRAM
      * @param address Memory address
      * @param data Data byte to be written
      */
-    void writeByte(unsigned int address, char data);
+    void writeByte(unsigned long address, char data);
+
+    /**
+     * writeSequence
+     *
+     * Write bytes to SRAM
+     *
+     * @param address Memory address
+     * @param data Data byte pointer to be written
+     */
+    void writeSequence(unsigned long address, char* data);
 };
 
 #endif

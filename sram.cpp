@@ -20,6 +20,8 @@
  * 
  * Author: Daniel Berenguer
  * Creation date: 01/30/2015
+ *
+ * Forked by: Leaf Jiang on 01/20/2016
  */
 
 #include "sram.h"
@@ -52,7 +54,7 @@ void SRAM::setMode(char mode)
  *
  * @return Byte read
  */
-unsigned char SRAM::readByte(unsigned int address)
+unsigned char SRAM::readByte(unsigned long address)
 {
   unsigned char res;
 
@@ -62,6 +64,7 @@ unsigned char SRAM::readByte(unsigned int address)
   // Write address, read data
   chipSelect(true);
   spi.transfer(READ);
+  spi.transfer((unsigned char)(address >> 16));
   spi.transfer((unsigned char)(address >> 8));
   spi.transfer((unsigned char)address);
   res = spi.transfer(0xFF);
@@ -78,7 +81,7 @@ unsigned char SRAM::readByte(unsigned int address)
  * @param address Memory address
  * @param data Data byte to be written
  */
-void SRAM::writeByte(unsigned int address, char data)
+void SRAM::writeByte(unsigned long address, char data)
 {
   // Set byte mode
   setMode(BYTE_MODE);
@@ -86,8 +89,35 @@ void SRAM::writeByte(unsigned int address, char data)
   // Write address, read data
   chipSelect(true);
   spi.transfer(WRITE);
+  spi.transfer((unsigned char)(address >> 16));
   spi.transfer((unsigned char)(address >> 8));
   spi.transfer((unsigned char)address);
   spi.transfer(data);
+  chipSelect(false);
+}
+
+/**
+ * writeSequence
+ *
+ * Write bytes to SRAM
+ *
+ * @param address Memory address
+ * @param data Data bytes to be written. Null terminated string
+ */
+void SRAM::writeSequence(unsigned long address, char* data)
+{
+  // Set byte mode
+  setMode(STREAM_MODE);
+  
+  // Write address, read data
+  chipSelect(true);
+  spi.transfer(WRSR);
+  spi.transfer((unsigned char)(address >> 16));
+  spi.transfer((unsigned char)(address >> 8));
+  spi.transfer((unsigned char)address);
+  while (*data != 0) {
+    spi.transfer(*data);
+    data++;
+  }
   chipSelect(false);
 }
